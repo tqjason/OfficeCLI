@@ -23,6 +23,21 @@ public static partial class PptxBatchEmitter
         var fullShape = ppt.Get(shapeNode.Path, depth: 3);
         var shapeProps = FilterEmittableProps(fullShape.Format);
 
+        // NodeBuilder emits `geometry=rect` for every shape with the implicit
+        // <a:prstGeom prst="rect"/> body — including plain text boxes. Replay
+        // routes any shape carrying `geometry=` through AddShape, which (per
+        // bbe1a0c8) seeds a default outline when the caller picks a geometry
+        // but supplies no explicit fill/line. The result is a round-trip
+        // drift: a clean textbox grows a 1pt black border on every dump+replay.
+        // Strip the rect default for textbox/title sources; explicit `shape`
+        // types keep the geometry so AddShape sees the user's intent.
+        if ((shapeNode.Type == "textbox" || shapeNode.Type == "title")
+            && shapeProps.TryGetValue("geometry", out var geomVal)
+            && geomVal.Equals("rect", StringComparison.OrdinalIgnoreCase))
+        {
+            shapeProps.Remove("geometry");
+        }
+
         // Emit type matches Add dispatch: "title" / "equation" both reduce to
         // "shape" or "textbox" on Add, and the emitted shape carries its
         // distinguishing prop (isTitle=true / formula=...). For now use
