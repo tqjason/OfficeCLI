@@ -904,6 +904,35 @@ internal static partial class ChartHelper
     }
 
     /// <summary>
+    /// Insert a child into a 3D chart (CT_Bar3DChart / CT_Line3DChart / CT_Area3DChart)
+    /// at the correct schema position. All three share the trailing sequence
+    /// ..., gapDepth?, [shape? — bar3D only], axId+, extLst?. PowerPoint silently
+    /// renders out-of-order children (e.g. shape appended after axId still shows
+    /// the cone/cylinder visually) but the validator emits "unexpected child
+    /// element 'shape'/'gapDepth' in bar3DChart".
+    /// </summary>
+    internal static void InsertBar3DChartChildInOrder(OpenXmlCompositeElement chart3d, OpenXmlElement child)
+    {
+        // bar3D: barDir, grouping, varyColors?, ser*, dLbls?, gapWidth?, gapDepth?, shape?, axId+, extLst?
+        // line3D / area3D: grouping?, varyColors?, ser*, dLbls?, dropLines?, gapDepth?, axId+, extLst?
+        string[] insertBeforeNames = child.LocalName switch
+        {
+            "gapDepth" => ["shape", "axId", "extLst"],
+            "shape" => ["axId", "extLst"],
+            _ => ["axId", "extLst"]
+        };
+        foreach (var sibling in chart3d.ChildElements)
+        {
+            if (insertBeforeNames.Contains(sibling.LocalName))
+            {
+                chart3d.InsertBefore(child, sibling);
+                return;
+            }
+        }
+        chart3d.AppendChild(child);
+    }
+
+    /// <summary>
     /// Insert effectLst into spPr respecting DrawingML schema: ..., ln, effectLst, effectDag, ...
     /// </summary>
     internal static void InsertEffectListInSpPr(Drawing.ShapeProperties spPr, Drawing.EffectList effectList)

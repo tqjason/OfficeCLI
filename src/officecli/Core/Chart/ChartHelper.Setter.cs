@@ -1829,7 +1829,7 @@ internal static partial class ChartHelper
                         ?? plotArea2?.GetFirstChild<C.Area3DChart>() as OpenXmlCompositeElement;
                     if (target3d == null) { unsupported.Add(key); break; }
                     target3d.RemoveAllChildren<C.GapDepth>();
-                    target3d.AppendChild(new C.GapDepth { Val = (ushort)ParseHelpers.SafeParseInt(value, "gapDepth") });
+                    InsertBar3DChartChildInOrder(target3d, new C.GapDepth { Val = (ushort)ParseHelpers.SafeParseInt(value, "gapDepth") });
                     break;
                 }
 
@@ -1850,7 +1850,7 @@ internal static partial class ChartHelper
                         _ => throw new ArgumentException(
                             $"Invalid bar shape '{value}'. Valid values: box, cone, coneToMax, cylinder, pyramid, pyramidToMax.")
                     };
-                    bar3d.AppendChild(new C.Shape { Val = shapeVal });
+                    InsertBar3DChartChildInOrder(bar3d, new C.Shape { Val = shapeVal });
                     break;
                 }
 
