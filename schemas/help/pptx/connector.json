@@ -85,11 +85,12 @@
     },
     "lineDash": {
       "type": "enum",
-      "values": ["solid", "dot", "dash", "dashDot", "longDash", "longDashDot", "sysDot", "sysDash"],
+      "values": ["solid", "dot", "dash", "dashDot", "lgDash", "lgDashDot", "lgDashDotDot", "sysDot", "sysDash", "sysDashDot", "sysDashDotDot", "longdash", "longdashdot"],
+      "description": "outline dash pattern (drawingML prstDash). Get readback emits the canonical OOXML token (lgDash/lgDashDot/lgDashDotDot/sysDot/...); the long* aliases are accepted on Add/Set only.",
       "add": true, "set": true, "get": true,
       "aliases": ["linedash"],
-      "examples": ["--prop lineDash=dash"],
-      "readback": "OOXML preset dash name",
+      "examples": ["--prop lineDash=dash", "--prop lineDash=lgDash", "--prop lineDash=sysDash"],
+      "readback": "canonical OOXML preset dash token (e.g. lgDash, sysDashDot)",
       "enforcement": "report"
     },
     "headEnd": {
