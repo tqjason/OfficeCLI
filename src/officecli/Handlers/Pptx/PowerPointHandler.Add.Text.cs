@@ -562,23 +562,30 @@ public partial class PowerPointHandler
     }
 
     // CONSISTENCY(escape-sequences): cross-handler convention — \t in paragraph
-    // text becomes an <a:tab/> element placed as a paragraph child between
-    // text-bearing <a:r> runs (the SDK has no strongly-typed class for it,
-    // so we emit OpenXmlUnknownElement). Caller has already split on real
-    // '\n' chars; this helper handles real '\t' chars within a single line.
-    // `runFactory` builds an <a:r> for a literal text segment; the helper
-    // appends runs and tabs to `paragraph` in left-to-right order.
+    // text becomes a literal U+0009 inside an <a:r><a:t> run, matching what
+    // PowerPoint itself writes. An earlier implementation emitted an
+    // <a:tab/> sibling via OpenXmlUnknownElement, but CT_TextParagraph in
+    // the DrawingML schema does not allow <a:tab/> as a direct child of
+    // <a:p> — the SDK validator and `view issues` both flagged the file.
+    // Caller has already split on real '\n' chars; this helper handles real
+    // '\t' chars within a single line by joining segments with a tab character
+    // and emitting a single run per segment.
     internal static void AppendLineWithTabs(
         Drawing.Paragraph paragraph,
         string line,
         Func<string, Drawing.Run> runFactory)
     {
-        const string aNs = "http://schemas.openxmlformats.org/drawingml/2006/main";
         var segments = line.Split('\t');
         for (int i = 0; i < segments.Length; i++)
         {
             if (i > 0)
-                paragraph.AppendChild(new OpenXmlUnknownElement("a", "tab", aNs));
+            {
+                // Emit the tab as its own run so the surrounding segment runs
+                // keep their independent rPr (formatting on either side of the
+                // tab is preserved). PowerPoint accepts a literal U+0009 inside
+                // <a:t> and renders it as a tab.
+                paragraph.AppendChild(runFactory("\t"));
+            }
             // Always emit a run per segment (including empty) so run formatting
             // is preserved on both sides of the tab. PowerPoint tolerates empty
             // <a:r><a:t/></a:r>.
