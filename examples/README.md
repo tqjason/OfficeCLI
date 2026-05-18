@@ -25,6 +25,9 @@ examples/
     ├── animations.{md,sh,pptx}
     ├── video.{md,py,pptx}
     ├── 3d-model.{md,sh,pptx}
+    ├── charts-<type>.{md,py,pptx}     # PowerPoint chart showcases
+    │   (column, bar, line, pie, doughnut, area, scatter,
+    │    bubble, radar, stock, combo, waterfall, 3d, advanced)
     └── tables-<topic>.{md,sh,pptx}    # basic, styled, merged, borders, rows-cols, financial
 ```
 
@@ -61,6 +64,7 @@ bash presentation.sh         # Morph transitions / full deck
 bash animations.sh           # Animation effects
 python video.py              # Video embedding
 bash 3d-model.sh             # 3D model embedding
+python charts-column.py      # PowerPoint chart examples (any charts-<type>.py)
 bash tables-basic.sh         # Tables — minimal create + populate
 bash tables-styled.sh        # 9 built-in styles + banding flags + rowHeight/name=
 bash tables-merged.sh        # gridSpan horizontal merge
@@ -88,6 +92,7 @@ bash tables-financial.sh     # End-to-end financial deck
 - Slide / shape construction
 - Morph transitions and animations
 - Video and 3D model embedding
+- Native chart examples (column, bar, line, pie, doughnut, area, scatter, bubble, radar, stock, combo, waterfall, 3D, advanced)
 - Tables — basic, built-in styles, merged cells, borders, row/column ops, real-world financial deck
 
 ---
