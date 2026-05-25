@@ -429,12 +429,19 @@ public static partial class PptxBatchEmitter
             string collapsedParaPath;
             if (firstParagraph)
             {
-                items.Add(new BatchItem
+                // First paragraph is already seeded by AddShape/AddTextbox.
+                // Skip the no-op `set` with empty props (batch rejects
+                // `props:null`). Second+ paragraphs always need `add` so
+                // the row count still grows.
+                if (props.Count > 0)
                 {
-                    Command = "set",
-                    Path = $"{shapeParent}/paragraph[1]",
-                    Props = props.Count > 0 ? props : null,
-                });
+                    items.Add(new BatchItem
+                    {
+                        Command = "set",
+                        Path = $"{shapeParent}/paragraph[1]",
+                        Props = props,
+                    });
+                }
                 collapsedParaPath = $"{shapeParent}/paragraph[1]";
             }
             else
@@ -491,12 +498,19 @@ public static partial class PptxBatchEmitter
         string paraParent;
         if (firstParagraph)
         {
-            items.Add(new BatchItem
+            // First paragraph already seeded by AddShape/AddTextbox; skip
+            // the no-op `set` when there are no paragraph-level props
+            // (batch rejects `props:null`). Runs will still be emitted
+            // against /paragraph[1] below.
+            if (props.Count > 0)
             {
-                Command = "set",
-                Path = $"{shapeParent}/paragraph[1]",
-                Props = props.Count > 0 ? props : null,
-            });
+                items.Add(new BatchItem
+                {
+                    Command = "set",
+                    Path = $"{shapeParent}/paragraph[1]",
+                    Props = props,
+                });
+            }
             paraParent = $"{shapeParent}/paragraph[1]";
         }
         else
